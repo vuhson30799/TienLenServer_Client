@@ -5,16 +5,16 @@ import java.util.Collections;
 
 public class Player {
     // Data Fields
-    private ArrayList<Card> hand = new ArrayList<Card>();
+    private ArrayList<Card> hand = new ArrayList<>();
     private boolean passTurn;
     private boolean isAI;
     private String name;
 
     // Constructor
-    Player(String name, boolean AI) {
+    Player(String name, boolean isAI) {
         this.name = name;
         passTurn = false;
-        isAI = AI;
+        this.isAI = isAI;
     }
 
     // Methods
@@ -26,11 +26,16 @@ public class Player {
         return passTurn;
     }
 
+    public void setAI(boolean isAI) {
+        this.isAI = isAI;
+    }
+
     public boolean checkAI() {
         return isAI;
     }
 
     public String getName() { return this.name;}
+    public void setName(String name) { this.name = name;}
 
     public void setPassing(boolean isPassing) {
         passTurn = isPassing;
@@ -80,5 +85,14 @@ public class Player {
             System.out.print("[" + (i + 1) + "] " + hand.get(i) + ";");
         }
         System.out.println();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Player) {
+            Player player = (Player) o;
+            return this.name.equals(player.getName());
+        }
+        return false;
     }
 }

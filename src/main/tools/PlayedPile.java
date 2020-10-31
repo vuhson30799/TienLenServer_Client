@@ -1,8 +1,7 @@
 package main.tools;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PlayedPile {
     public final Card lowestCard = new Card(1, 3);
@@ -21,7 +20,7 @@ public class PlayedPile {
 
     // Constructors
     PlayedPile() {
-        currSet = new ArrayList<Card>();
+        currSet = new ArrayList<>();
         playAny = true;
         isSingle = false;
         isDouble = false;
@@ -30,24 +29,24 @@ public class PlayedPile {
         isBomb = false;
         straightSize = 3;
         typeSel = 0;
-        cardSel = new ArrayList<Card>();
+        cardSel = new ArrayList<>();
     }
 
-    public void playerTurn(Player currP, int playerNum, boolean AI, int turnNum, Scanner userInput) {
+    public void playerTurn(Player player, String playerName, boolean isAI, int turnNum, Scanner userInput) {
         int numOfCards = 0;
         int userCommand = 0;
         int userTypeSel = 0;
         boolean endTurn = false;
         cardSel.clear();
 
-        if (AI) {
-            aiTurn(currP, playerNum);
+        if (isAI) {
+            aiTurn(player, playerName);
         } else {
             System.out.println("Current Play:");
             printCurrPlay();
 
             System.out.println("Your Hand:");
-            currP.displayHand();
+            player.displayHand();
 
             while (!endTurn) {
 
@@ -82,11 +81,11 @@ public class PlayedPile {
                                 numOfCards = userInput.nextInt();
                                 userInput.nextLine();
                                 if (playAny) {
-                                    if (numOfCards > 2 && numOfCards < currP.handSize()) {
+                                    if (numOfCards > 2 && numOfCards < player.handSize()) {
                                         straightSize = numOfCards;
                                         validSSize = true;
                                     } else {
-                                        System.out.println("**Invalid Size - Select a size between 3 and " + currP.handSize() + "**");
+                                        System.out.println("**Invalid Size - Select a size between 3 and " + player.handSize() + "**");
                                         validSSize = false;
                                     }
                                 } else if (!playAny && numOfCards > straightSize) {
@@ -103,7 +102,7 @@ public class PlayedPile {
                                 continue;
                             }
                             System.out.println("Select the number(s) of the card(s) you would like to play (ie. 1 2 3):");
-                            currP.displayHand();
+                            player.displayHand();
                             System.out.println("[14] Go Back to Type Selection");
                             cardSel.clear();
                             cIndices.clear();
@@ -118,7 +117,7 @@ public class PlayedPile {
                                 }
 
                                 cIndices.add(userCommand - 1);
-                                cardSel.add(currP.getCardAt(userCommand - 1));
+                                cardSel.add(player.getCardAt(userCommand - 1));
 
                                 if (cardSel.size() >= numOfCards) {
                                     break;
@@ -129,15 +128,15 @@ public class PlayedPile {
 
                     } while (!isValid(userTypeSel, cardSel, turnNum, goBack));
 
-                    playSelection(playerNum);
-                    removeFromHand(currP, cIndices);
+                    playSelection(playerName);
+                    removeFromHand(player, cIndices);
                     endTurn = true;
                 } else if (userCommand == 2) {
                     if (playAny) {
                         System.out.println("You cannot pass when you are able to play anything!");
                     } else {
-                        System.out.println("~~ main.Player " + playerNum + " is passing ~~");
-                        currP.setPassing(true);
+                        System.out.println("~~ main.Player " + playerName + " is passing ~~");
+                        player.setPassing(true);
                         endTurn = true;
                     }
                 } else {
@@ -148,40 +147,28 @@ public class PlayedPile {
     }
 
     // Methods
-    public int findStarter(Player p1, Player p2, Player p3, Player p4) {
-        int starter = 1;
+    public int findStarter(List<Player> players) {
+        Player player = players.stream()
+                .filter(p -> p.checkAt(0).equals(lowestCard))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No player has 3 of Spades"));
 
-        if (p2.checkAt(0).equals(lowestCard)) {
-            starter = 2;
-        } else if (p3.checkAt(0).equals(lowestCard)) {
-            starter = 3;
-        } else if (p4.checkAt(0).equals(lowestCard)) {
-            starter = 4;
-        }
-
-        return starter;
+        return players.indexOf(player);
     }
 
-    public boolean isGameOver(Player p1, Player p2, Player p3, Player p4) {
+    public boolean isGameOver(List<Player> players) {
         boolean gameOver = false;
-        if (p1.isHandEmpty()) {
-            System.out.println("PLAYER 1 WINS! GAME OVER!\n");
-            gameOver = true;
-        } else if (p2.isHandEmpty()) {
-            System.out.println("PLAYER 2 WINS! GAME OVER!\n");
-            gameOver = true;
-        } else if (p3.isHandEmpty()) {
-            System.out.println("PLAYER 3 WINS! GAME OVER!\n");
-            gameOver = true;
-        } else if (p4.isHandEmpty()) {
-            System.out.println("PLAYER 4 WINS! GAME OVER!\n");
+        Optional<Player> player = players.stream().filter(Player::isHandEmpty).findFirst();
+        if (player.isPresent()) {
+            System.out.println(String.format("PLAYER %d WINS! GAME OVER!%n", players.indexOf(player.get()) + 1));
             gameOver = true;
         }
+
         return gameOver;
     }
 
-    public void newRound(int currP, Player p1, Player p2, Player p3, Player p4) {
-        if (checkPasses(currP, p1, p2, p3, p4)) {
+    public void newRound(int whoseTurn, List<Player> players) {
+        if (checkPasses(whoseTurn, players)) {
             currSet.clear();
             playAny = true;
         }
@@ -199,8 +186,8 @@ public class PlayedPile {
         }
     }
 
-    private void aiTurn(Player currAI, int playerNum) {
-        System.out.println("~~ main.Player " + playerNum + " is passing ~~");
+    private void aiTurn(Player currAI, String playerName) {
+        System.out.println("~~ main.Player " + playerName + " is passing ~~");
         currAI.setPassing(true);
     }
 
@@ -540,52 +527,27 @@ public class PlayedPile {
         return valid;
     }
 
-    private boolean checkPasses(int currP, Player p1, Player p2, Player p3, Player p4) {
-        boolean allPassed = false;
-        switch (currP) {
-            case 1:
-                if (p2.isPassing() && p3.isPassing() && p4.isPassing()) {
-                    p2.setPassing(false);
-                    p3.setPassing(false);
-                    p4.setPassing(false);
-                    allPassed = true;
-                }
-                break;
-            case 2:
-                if (p1.isPassing() && p3.isPassing() && p4.isPassing()) {
-                    p1.setPassing(false);
-                    p3.setPassing(false);
-                    p4.setPassing(false);
-                    allPassed = true;
-                }
-                break;
-            case 3:
-                if (p1.isPassing() && p2.isPassing() && p4.isPassing()) {
-                    p1.setPassing(false);
-                    p2.setPassing(false);
-                    p4.setPassing(false);
-                    allPassed = true;
-                }
-                break;
-            case 4:
-                if (p1.isPassing() && p2.isPassing() && p3.isPassing()) {
-                    p1.setPassing(false);
-                    p2.setPassing(false);
-                    p3.setPassing(false);
-                    allPassed = true;
-                }
-                break;
+    private boolean checkPasses(int whoseTurn, List<Player> players) {
+        boolean allPassed = true;
+        List<Player> others = players.stream()
+                .filter(player -> players.indexOf(player) != whoseTurn).collect(Collectors.toList());
+        for (Player player :
+                others) {
+            allPassed = allPassed && player.isPassing();
+        }
+        if (allPassed) {
+            others.forEach(player -> player.setPassing(false));
         }
         return allPassed;
     }
 
-    private void playSelection(int playerNum) {
+    private void playSelection(String playerName) {
         currSet.clear();
         for (Card card : cardSel) {
             currSet.add(card);
         }
         cardSel.clear();
-        System.out.println("main.Player " + playerNum + " played:");
+        System.out.println("main.Player " + playerName + " played:");
         printCurrPlay();
     }
 

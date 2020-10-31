@@ -1,7 +1,5 @@
 package main.tools;
 
-import main.constant.CardError;
-
 import static main.constant.CardError.*;
 
 public class Card implements Comparable<Card> {
