@@ -1,5 +1,8 @@
 package main.tools;
 
+import main.utils.DefaultUtils;
+import main.utils.Utils;
+
 import static main.constant.CardError.*;
 
 public class Card implements Comparable<Card> {
@@ -134,50 +137,9 @@ public class Card implements Comparable<Card> {
 
     @Override
     public String toString() {
-        StringBuilder card = new StringBuilder();
-        switch(primaryRank) {
-            case 1:
-            case 14:
-                card.append("Ace of ");
-                break;
-            case 2: card.append("2 of ");
-                break;
-            case 3: card.append("3 of ");
-                break;
-            case 4: card.append("4 of ");
-                break;
-            case 5: card.append("5 of ");
-                break;
-            case 6: card.append("6 of ");
-                break;
-            case 7: card.append("7 of ");
-                break;
-            case 8: card.append("8 of ");
-                break;
-            case 9: card.append("9 of ");
-                break;
-            case 10: card.append("10 of ");
-                break;
-            case 11: card.append("Jack of ");
-                break;
-            case 12: card.append("Queen of ");
-                break;
-            case 13: card.append("King of ");
-                break;
-            default: card.append("(No Rank) of ");
-        }
-
-        switch(suite) {
-            case 1: card.append("Spades");
-                break;
-            case 2: card.append("Clubs");
-                break;
-            case 3: card.append("Diamonds");
-                break;
-            case 4: card.append("Hearts");
-                break;
-            default: card.append("(No Suite)");
-        }
-        return card.toString();
+        Utils utils = new DefaultUtils();
+        return String.format("%s of %s",
+                utils.resolveRank(primaryRank),
+                utils.resolveSuite(suite));
     }
 }
