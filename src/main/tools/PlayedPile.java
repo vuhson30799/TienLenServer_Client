@@ -1,6 +1,8 @@
 package main.tools;
 
 import main.dto.ClientToServerData;
+import main.utils.DefaultUtils;
+import main.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,8 +14,10 @@ import static main.constant.ApplicationError.PLAYED_SET_INVALID;
 
 public class PlayedPile {
     public final Card lowestCard = new Card(1, 3);
+    private Utils utils = new DefaultUtils();
     // Data Fields
     private ArrayList<Card> currSet;
+    private ArrayList<Card> cardSel;
     private boolean playAny;
     private boolean isSingle;
     private boolean isDouble;
@@ -23,7 +27,6 @@ public class PlayedPile {
     private int straightSize;
     boolean validSSize = false;
     private int typeSel;
-    private ArrayList<Card> cardSel;
 
     // Constructors
     PlayedPile() {
@@ -294,175 +297,154 @@ public class PlayedPile {
 
     private boolean checkSingle(ArrayList<Card> toPlay, int turnNum) {
         System.out.println("CHECKING SINGLE . . .");
-        boolean valid = false;
-
-        if (currSet.size() != 1 && !playAny) {
-            System.out.println("The current played set of cards is not a Single");
-        } else {
-            Card selectedCard = toPlay.get(0);
-
-            if (currSet.isEmpty() && playAny) {
-                if (turnNum == 1) {
-                    if (selectedCard.equals(lowestCard)) {
-                        valid = true;
-                    } else {
-                        System.out.println("The first turn must include the 3 of Spades");
-                    }
-                } else {
-                    valid = true;
-                }
-            } else {
-                Card currentCard = currSet.get(0);
-                if (selectedCard.getRank() == 1 || selectedCard.getRank() == 2) {
-                    if (selectedCard.getSVal() > currentCard.getSVal()) {
-                        valid = true;
-                    }
-                } else if (selectedCard.getRank() > currentCard.getRank()) {
-                    valid = true;
-                } else if (selectedCard.getRank() == currentCard.getRank()) {
-                    if (selectedCard.getSuite() > currentCard.getSuite()) {
-                        valid = true;
-                    }
-                }
-            }
+        if (turnNum == 1 && !utils.checkValidFirstRound(toPlay)) {
+            return false;
         }
-        return valid;
+
+        if (playAny) {
+            return true;
+        }
+
+        if (currSet.size() != 1) {
+            throw new IllegalArgumentException("The current played set of cards is not a Single");
+        }
+
+        Card selectedCard = toPlay.get(0);
+        Card currentCard = currSet.get(0);
+
+        if (selectedCard.getRank() == 1
+                || selectedCard.getRank() == 2
+                || currentCard.getRank() == 1
+                || currentCard.getRank() == 2) {
+            return selectedCard.getSVal() > currentCard.getSVal();
+        }
+
+        if (selectedCard.getRank() > currentCard.getRank()) {
+            return true;
+        }
+
+        if (selectedCard.getRank() == currentCard.getRank()) {
+            return selectedCard.getSuite() > currentCard.getSuite();
+        }
+
+        return false;
     }
 
     private boolean checkDouble(ArrayList<Card> toPlay, int turnNum) {
         System.out.println("CHECKING DOUBLE . . .");
-        boolean valid = false;
+        if (turnNum == 1 && !utils.checkValidFirstRound(toPlay)) {
+            return false;
+        }
 
-        if (currSet.size() != 2 && !playAny) {
-            System.out.println("The current played set of cards is not a Double");
-        } else {
-            Collections.sort(toPlay);
-            Card tpFirstC = toPlay.get(0);
-            Card tpSecondC = toPlay.get(1);
-            if (tpFirstC.getRank() == 2 || tpSecondC.getRank() == 2) {
-                System.out.println("Cannot use 2 in a Double");
-            } else if (tpFirstC.getRank() == tpSecondC.getRank()) {
+        Collections.sort(toPlay);
+        Card tpFirstC = toPlay.get(0);
+        Card tpSecondC = toPlay.get(1);
+        if (tpFirstC.getRank() == 2 || tpSecondC.getRank() == 2) {
+            throw new IllegalArgumentException("Cannot use 2 in a Double");
+        }
 
-                if (currSet.isEmpty() && playAny) {
-                    if (turnNum == 1) {
-                        if (tpFirstC.equals(lowestCard)) {
-                            valid = true;
-                        } else {
-                            System.out.println("The first turn must include the 3 of Spades");
-                        }
-                    } else {
-                        valid = true;
-                    }
-                } else {
-                    Card highestCurrC = currSet.get(1);
-                    if (tpSecondC.getRank() > highestCurrC.getRank()) {
-                        valid = true;
-                    } else if (tpSecondC.getRank() == highestCurrC.getRank()) {
-                        if (tpSecondC.getSuite() > highestCurrC.getSuite()) {
-                            valid = true;
-                        }
-                    }
-                }
+        if (tpFirstC.getRank() == tpSecondC.getRank()) {
+            if (playAny) {
+                return true;
+            }
+            if (currSet.size() != 2) {
+                throw new IllegalArgumentException("The current played set of cards is not a Double");
+            }
 
+            Card highestCurrC = currSet.get(1);
+            if (tpSecondC.getRank() > highestCurrC.getRank()) {
+                return true;
+            }
+
+            if (tpSecondC.getRank() == highestCurrC.getRank()) {
+                return tpSecondC.getSuite() > highestCurrC.getSuite();
             }
         }
-        return valid;
+        return false;
     }
 
     private boolean checkTriple(ArrayList<Card> toPlay, int turnNum) {
         System.out.println("CHECKING TRIPLE . . .");
-        boolean valid = false;
 
-        if (currSet.size() != 3 && !playAny) {
-            System.out.println("The current played set of cards is not a Triple");
-        } else {
-            Collections.sort(toPlay);
-            Card tpFirstC = toPlay.get(0);
-            Card tpSecondC = toPlay.get(1);
-            Card tpThirdC = toPlay.get(2);
-            if (tpFirstC.getRank() == 2 || tpSecondC.getRank() == 2 || tpThirdC.getRank() == 2) {
-                System.out.println("You cannot use 2 in a Triple");
-            } else if (tpFirstC.getRank() == tpSecondC.getRank() && tpSecondC.getRank() == tpThirdC.getRank()) {
-
-                if (currSet.isEmpty() && playAny) {
-                    if (turnNum == 1) {
-                        if (tpFirstC.equals(lowestCard)) {
-                            valid = true;
-                        } else {
-                            System.out.println("The first turn must include the 3 of Spades");
-                        }
-                    } else {
-                        valid = true;
-                    }
-                } else {
-                    Card highestCurrC = currSet.get(2);
-                    if (tpThirdC.getRank() > highestCurrC.getRank()) {
-                        valid = true;
-                    } else if (tpThirdC.getRank() == highestCurrC.getRank()) {
-                        if (tpThirdC.getSuite() > highestCurrC.getSuite()) {
-                            valid = true;
-                        }
-                    }
-                }
-
-            }
+        if (turnNum == 1 && !utils.checkValidFirstRound(toPlay)) {
+            return false;
         }
-        return valid;
+
+        Collections.sort(toPlay);
+        Card tpFirstC = toPlay.get(0);
+        Card tpSecondC = toPlay.get(1);
+        Card tpThirdC = toPlay.get(2);
+        if (tpFirstC.getRank() == 2 || tpSecondC.getRank() == 2 || tpThirdC.getRank() == 2) {
+            throw new IllegalArgumentException("You cannot use 2 in a Triple");
+        }
+
+        if (tpFirstC.getRank() == tpSecondC.getRank() && tpSecondC.getRank() == tpThirdC.getRank()) {
+            if (playAny) {
+                return true;
+            }
+            if (currSet.size() != 3) {
+                throw new IllegalArgumentException("The current played set of cards is not a Triple");
+            }
+            Card highestCurrC = currSet.get(2);
+            if (tpThirdC.getRank() > highestCurrC.getRank()) {
+                return true;
+            }
+            if (tpThirdC.getRank() == highestCurrC.getRank()) {
+                return tpThirdC.getSuite() > highestCurrC.getSuite();
+            }
+
+        }
+        return false;
     }
 
     private boolean checkStraight(ArrayList<Card> toPlay, int turnNum) {
         System.out.println("CHECKING STRAIGHT . . .");
-        boolean valid = false;
         boolean isConsec = false;
 
-        if (currSet.size() != straightSize && !playAny) {
-            System.out.println("The current played set of cards does not have the same straight size as your selection");
-        } else {
-            Collections.sort(toPlay);
-            for (int i = 0; i < toPlay.size() - 1; i++) {
-                if (toPlay.get(i).getRank() == 2 || toPlay.get(i + 1).getRank() == 2) {
-                    System.out.println("You cannot use a 2 in a Straight");
-                    isConsec = false;
-                    break;
-                }
-                if ((toPlay.get(i).getRank() + 1) == toPlay.get(i + 1).getRank()) {
-                    isConsec = true;
-                } else {
-                    isConsec = false;
-                    break;
-                }
-            }
+        if (turnNum == 1 && !utils.checkValidFirstRound(toPlay)) {
+            return false;
+        }
 
-            if (isConsec) {
-                if (currSet.isEmpty() && playAny) {
-                    if (turnNum == 1) {
-                        Card tpFirstC = toPlay.get(0);
-                        if (tpFirstC.equals(lowestCard)) {
-                            valid = true;
-                        } else {
-                            System.out.println("The first turn must include the 3 of Spades");
-                        }
-                    } else {
-                        valid = true;
-                    }
-                } else {
-                    Card highestTpC = toPlay.get(straightSize - 1);
-                    Card highestCurrC = currSet.get(straightSize - 1);
-                    if (highestTpC.getRank() > highestCurrC.getRank()) {
-                        valid = true;
-                    } else if (highestTpC.getRank() == highestCurrC.getRank()) {
-                        if (highestTpC.getSuite() > highestCurrC.getSuite()) {
-                            valid = true;
-                        }
-                    }
-                }
+        Collections.sort(toPlay);
+        for (int i = 0; i < toPlay.size() - 1; i++) {
+            if (toPlay.get(i).getRank() == 2 || toPlay.get(i + 1).getRank() == 2) {
+                throw new IllegalArgumentException("You cannot use a 2 in a Straight");
+            }
+            if ((toPlay.get(i).getRank() + 1) == toPlay.get(i + 1).getRank()) {
+                isConsec = true;
+            } else {
+                isConsec = false;
+                break;
             }
         }
-        return valid;
+
+        if (isConsec) {
+            if (playAny) {
+                return true;
+            }
+
+            if (currSet.size() != straightSize) {
+                throw new IllegalArgumentException("The current played set of cards does not have the same straight size as your selection");
+            }
+
+            Card highestTpC = toPlay.get(straightSize - 1);
+            Card highestCurrC = currSet.get(straightSize - 1);
+            if (highestTpC.getRank() > highestCurrC.getRank()) {
+                return true;
+            } else if (highestTpC.getRank() == highestCurrC.getRank()) {
+                return highestTpC.getSuite() > highestCurrC.getSuite();
+            }
+        }
+        return false;
     }
 
     private boolean checkBomb(ArrayList<Card> toPlay, int turnNum) {
         System.out.println("CHECKING BOMB . . .");
+
+        if (turnNum == 1) {
+            throw new IllegalArgumentException("You cannot play a Bomb on Turn 1");
+        }
+
         boolean valid = false;
         boolean validBomb = false;
 
@@ -471,52 +453,44 @@ public class PlayedPile {
         Card tpSecondD = toPlay.get(3);
         Card tpThirdD = toPlay.get(5);
 
-        if (tpFirstD.getRank() == toPlay.get(0).getRank() &&
-                tpSecondD.getRank() == toPlay.get(2).getRank() &&
-                tpThirdD.getRank() == toPlay.get(4).getRank()) {
-            if ((tpFirstD.getRank() + 1 == tpSecondD.getRank()) && (tpSecondD.getRank() + 1 == tpThirdD.getRank())) {
-                validBomb = true;
-            }
+        if (tpFirstD.getRank() == toPlay.get(0).getRank()
+                && tpSecondD.getRank() == toPlay.get(2).getRank()
+                && tpThirdD.getRank() == toPlay.get(4).getRank()
+                && (tpFirstD.getRank() + 1 == tpSecondD.getRank())
+                && (tpSecondD.getRank() + 1 == tpThirdD.getRank())) {
+            validBomb = true;
         }
 
-        if (turnNum == 1) {
-            System.out.println("You cannot play a Bomb on Turn 1");
-        } else if (validBomb) {
+        if (validBomb) {
+            if (playAny) {
+                throw new IllegalArgumentException("You can only Bomb a 2 or another Bomb");
+            }
             if (isSingle) {
-                if (currSet.size() != 1 && !playAny) {
-                    System.out.println("The current played set of cards is not a valid play to Bomb");
-                } else {
-                    if (currSet.isEmpty() && playAny) {
-                        System.out.println("You can only Bomb a 2 or another Bomb");
-                    } else if (currSet.get(0).getRank() == 2) {
-                        valid = true;
-                    } else {
-                        System.out.println("You can only Bomb a Single that is a 2");
-                    }
+                if (currSet.size() != 1) {
+                    throw new IllegalArgumentException("The current played set of cards is not a valid play to Bomb");
                 }
-            } else if (isBomb) {
-                if (currSet.size() != 6 && !playAny) {
-                    System.out.println("The current played set of cards is not a Bomb");
+                if (currSet.get(0).getRank() == 2) {
+                    return true;
                 } else {
-                    if (currSet.isEmpty() && playAny) {
-                        System.out.println("You can only Bomb a 2 or another Bomb");
-                    } else {
-                        Card highestCurrC = currSet.get(5);
-                        if (tpThirdD.getRank() > highestCurrC.getRank()) {
-                            valid = true;
-                        } else if (tpThirdD.getRank() == highestCurrC.getRank()) {
-                            if (tpThirdD.getSuite() > highestCurrC.getSuite()) {
-                                valid = true;
-                            }
-                        }
-                    }
+                    throw new IllegalArgumentException("You can only Bomb a Single that is a 2");
                 }
             }
-        } else {
-            System.out.println("Your selected Bomb was not a set of 3 consecutive Doubles");
+            if (isBomb) {
+                if (currSet.size() != 6) {
+                    throw new IllegalArgumentException("The current played set of cards is not a Bomb");
+                }
+
+                Card highestCurrC = currSet.get(5);
+                if (tpThirdD.getRank() > highestCurrC.getRank()) {
+                    return true;
+                }
+                if (tpThirdD.getRank() == highestCurrC.getRank()) {
+                    return tpThirdD.getSuite() > highestCurrC.getSuite();
+                }
+            }
         }
 
-        return valid;
+        throw new IllegalArgumentException("Your selected Bomb was not a set of 3 consecutive Doubles");
     }
 
     private boolean checkPasses(int whoseTurn, List<Player> players) {

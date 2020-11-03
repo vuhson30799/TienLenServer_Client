@@ -77,6 +77,13 @@ public class GameManager implements Serializable {
                 }
                 isGameOver = pile.isGameOver(players);
             } while (!isGameOver);
+
+            Player player = players.stream()
+                    .filter(Player::isHandEmpty)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Something went wrong!"));
+            ServerSendingThread sendingThread = new ServerSendingThread(outputClient, this, true, String.format("PLAYER %s WINS! GAME OVER!%n", player.getName()));
+            sendingThread.start();
         } catch (IOException e) {
             e.printStackTrace();
         }

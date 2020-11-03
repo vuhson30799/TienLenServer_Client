@@ -1,6 +1,8 @@
 package main.client;
 
 import main.dto.ClientToServerData;
+import main.utils.DefaultUtils;
+import main.utils.Utils;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
@@ -49,11 +51,17 @@ public class MyButton extends JButton implements MouseListener {
     }
 
     private ClientToServerData setOutputDataForServer(MyPanel panel, boolean isPassing) {
+        Utils utils = new DefaultUtils();
         ClientToServerData clientToServerData = new ClientToServerData();
         clientToServerData.setPassing(isPassing);
         clientToServerData.setPlayedSet(isPassing ? null : panel.getPlayedCards());
         clientToServerData.setPlayer(panel.getPlayer());
-        clientToServerData.setTypeSelection(isPassing ? 0 : panel.getPlayedCards().size());
+        try {
+            clientToServerData.setTypeSelection(utils.checkTypeSelection(panel.getPlayedCards()));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this.getParent(), e.getMessage());
+        }
+
         return clientToServerData;
     }
 
