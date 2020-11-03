@@ -1,10 +1,12 @@
 package main.tools;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Player {
-    // Data Fields
+public class Player implements Serializable {
+    private static final long serialVersionUID = 101L;
+
     private ArrayList<Card> hand = new ArrayList<>();
     private boolean passTurn;
     private boolean isAI;
@@ -68,6 +70,10 @@ public class Player {
         return hand.get(i);
     }
 
+    public int getIndexOf(Card card) {
+        return this.hand.indexOf(card);
+    }
+
     public void removeCardAt(int i) {
         hand.remove(i);
     }
@@ -94,5 +100,9 @@ public class Player {
             return this.name.equals(player.getName());
         }
         return false;
+    }
+
+    public ArrayList<Card> getHand() {
+        return hand;
     }
 }

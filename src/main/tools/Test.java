@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Test {
-    public static void main(String[] args) throws IOException {
+    /*public static void main(String[] args) {
         System.out.println("Welcome to Tien Len (13)!");
         int userCommand = 0;
         Scanner userInput = new Scanner(System.in);
@@ -16,7 +16,7 @@ public class Test {
 
 
     // Methods
-    private static int intro(Scanner userInput) throws IOException {
+    private static int intro(Scanner userInput) {
         int userCommand = 0;
 
         GameManager game;
@@ -96,5 +96,10 @@ public class Test {
         System.out.println("> The first player to shed all 13 cards is the winner.");
 
         System.out.println("------------------------------------------------------------------------------------------------------");
+    }*/
+
+    public static void main(String[] args) throws IOException {
+        GameManager gameManager = new GameManager();
+        gameManager.run();
     }
 }

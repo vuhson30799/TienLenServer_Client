@@ -1,0 +1,74 @@
+package main.client;
+
+import main.dto.ClientToServerData;
+
+import javax.swing.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+public class MyButton extends JButton implements MouseListener {
+
+    public MyButton(String text) {
+        super(text);
+        addMouseListener(this);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        //TO-DO: do nothing for now
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        try {
+            Socket socket = new Socket("localhost", 5000);
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            if (!(e.getSource() instanceof MyButton)) {
+                throw new IllegalArgumentException("Something went wrong");
+            }
+
+            MyButton component = (MyButton) e.getSource();
+            if (!(component.getParent() instanceof MyPanel)) {
+                throw new IllegalArgumentException("Something went wrong");
+            }
+            MyPanel parent = (MyPanel) component.getParent();
+            if (component.getText().equals("Play")) {
+                outputStream.writeObject(setOutputDataForServer(parent, false));
+            } else {
+                outputStream.writeObject(setOutputDataForServer(parent, true));
+            }
+            outputStream.flush();
+            outputStream.close();
+            socket.close();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+
+    private ClientToServerData setOutputDataForServer(MyPanel panel, boolean isPassing) {
+        ClientToServerData clientToServerData = new ClientToServerData();
+        clientToServerData.setPassing(isPassing);
+        clientToServerData.setPlayedSet(isPassing ? null : panel.getPlayedCards());
+        clientToServerData.setPlayer(panel.getPlayer());
+        clientToServerData.setTypeSelection(isPassing ? 0 : panel.getPlayedCards().size());
+        return clientToServerData;
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        //TO-DO: do nothing for now
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        //TO-DO: do nothing for now
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        //TO-DO: do nothing for now
+    }
+}

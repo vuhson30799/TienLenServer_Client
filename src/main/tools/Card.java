@@ -3,9 +3,13 @@ package main.tools;
 import main.utils.DefaultUtils;
 import main.utils.Utils;
 
-import static main.constant.CardError.*;
+import java.io.Serializable;
 
-public class Card implements Comparable<Card> {
+import static main.constant.ApplicationError.*;
+
+public class Card implements Comparable<Card>, Serializable {
+    private static final long serialVersionUID = 102L;
+
     private int suite;
     private int primaryRank;
     private int secondaryValue;
@@ -19,7 +23,7 @@ public class Card implements Comparable<Card> {
         sortByRank = false;
     }
 
-    Card(int newSuite, int newPRank) {
+    public Card(int newSuite, int newPRank) {
         if (newSuite < 1 || newSuite > 4) {
             throw new IllegalArgumentException(SUITE_ERROR);
         }

@@ -30,6 +30,7 @@ public class DefaultUtils implements Utils {
     @Override
     public String resolveRank(int rank) {
         switch (rank) {
+            case 14:
             case 1:
                 return ACE;
             case 2:

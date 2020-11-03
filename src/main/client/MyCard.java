@@ -1,5 +1,9 @@
 package main.client;
 
+import main.tools.Card;
+import main.utils.DefaultUtils;
+import main.utils.Utils;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -9,13 +13,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class CardGui extends JLabel implements MouseListener {
+public class MyCard extends JLabel implements MouseListener {
     private int originalX;
     private int originalY;
+    private Card card;
 
-    public CardGui() throws IOException {
+    public MyCard(Card card) throws IOException {
         super();
-        String imagePath = "./resources/images/hearts/ace.png";
+        this.card = card;
+        Utils utils = new DefaultUtils();
+        String imagePath = utils.generateImagePathFromCardValue(utils.resolveSuite(card.getSuite()), utils.resolveRank(card.getRank()));
         BufferedImage myPicture = ImageIO.read(new File(imagePath));
         Image img = myPicture.getScaledInstance(70,105, Image.SCALE_SMOOTH);
         ImageIcon imageIcon = new ImageIcon(img);
@@ -27,28 +34,35 @@ public class CardGui extends JLabel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        JPanel parent = new JPanel();
-        if (e.getSource() instanceof  CardGui) {
-            CardGui component = (CardGui) e.getSource();
-            if (component.getParent() instanceof JPanel) {
-                parent = (JPanel) component.getParent();
-            }
-        }
-
-        if (this.getY() <= 0) {
-            this.setLocation(this.getX(), this.getY() + 10);
-        } else {
-            this.setLocation(this.getX(), this.getY() - 10);
-
-        }
-        parent.repaint();
-        this.repaint();
-
+        //TO-DO: do nothing for now
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        //TO-DO: do nothing for now
+        if (!(e.getSource() instanceof MyCard)) {
+            throw new IllegalArgumentException("Something went wrong");
+        }
+
+        MyCard component = (MyCard) e.getSource();
+        if (!(component.getParent() instanceof MyPanel)) {
+            throw new IllegalArgumentException("Something went wrong");
+        }
+
+        MyPanel parent = (MyPanel) component.getParent();
+        if (this.getY() <= 0) {
+            this.setLocation(this.getX(), this.getY() + 10);
+            if (parent.getPlayer().getHand().contains(component.getCard())) {
+                parent.getPlayedCards().remove(component.getCard());
+            }
+        } else {
+            this.setLocation(this.getX(), this.getY() - 10);
+            if (parent.getPlayer().getHand().contains(component.getCard())) {
+                parent.getPlayedCards().add(component.getCard());
+            }
+
+        }
+        parent.repaint();
+        this.repaint();
     }
 
     @Override
@@ -80,5 +94,13 @@ public class CardGui extends JLabel implements MouseListener {
 
     public void setOriginalY(int originalY) {
         this.originalY = originalY;
+    }
+
+    public Card getCard() {
+        return card;
+    }
+
+    public void setCard(Card card) {
+        this.card = card;
     }
 }
