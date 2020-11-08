@@ -13,7 +13,7 @@ public class Player implements Serializable {
     private String name;
 
     // Constructor
-    Player(String name, boolean isAI) {
+    public Player(String name, boolean isAI) {
         this.name = name;
         passTurn = false;
         this.isAI = isAI;

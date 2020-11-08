@@ -125,7 +125,7 @@ public class PlayedPile {
             } else {
                 if (playAny) {
                     System.out.println("You cannot pass when you are able to play anything!");
-                    throw new IllegalArgumentException("Wrong move!");
+                    throw new IllegalArgumentException("You cannot pass when you are able to play anything!");
                 } else {
                     System.out.println("~~ main.Player " + playerName + " is passing ~~");
                     player.setPassing(true);
