@@ -4,13 +4,18 @@ import main.dto.PlayerData;
 import main.dto.ServerToClientData;
 import main.tools.Player;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
+
+import static main.constant.Application.*;
 
 @SuppressWarnings("java:S110")
 public class ClientApplication extends JFrame implements Runnable {
@@ -31,16 +36,16 @@ public class ClientApplication extends JFrame implements Runnable {
         southPanel.setSize(1200, 120);
 
         northPanel = new MyPanel();
-        northPanel.setBackground(Color.YELLOW);
+        northPanel.setBackground(BACKGROUND_COLOR);
 
         westPanel = new MyPanel();
-        westPanel.setBackground(Color.GREEN);
+        westPanel.setBackground(BACKGROUND_COLOR);
 
         eastPanel = new MyPanel();
-        eastPanel.setBackground(Color.RED);
+        eastPanel.setBackground(BACKGROUND_COLOR);
 
         centerPanel = new MyPanel();
-        centerPanel.setBackground(Color.decode("0x1b6d3c"));
+        centerPanel.setBackground(BACKGROUND_COLOR);
 
         this.getContentPane().add(BorderLayout.SOUTH, southPanel);
         this.getContentPane().add(BorderLayout.NORTH, northPanel);
@@ -161,21 +166,21 @@ public class ClientApplication extends JFrame implements Runnable {
 
     private void initDataForOtherPanels(int playerId, ServerToClientData inputData) {
         IntStream.range(0, 4).filter(index -> index != playerId).forEach(index -> {
-            JTextArea textArea = new JTextArea();
-            textArea.append(String.valueOf(inputData.getPlayers().get(index).getHand().size()));
+            String numberOfCard = String.valueOf(inputData.getPlayers().get(index).getHand().size());
+            String playerName = inputData.getPlayers().get(index).getName();
 
             switch (playerId) {
                 case 0:
-                    setNumberOfCardsLeftForOthers(index, 1, 2, 3, textArea);
+                    setNumberOfCardsLeftForOthers(index, 1, 2, 3, numberOfCard, playerName);
                     break;
                 case 1:
-                    setNumberOfCardsLeftForOthers(index, 0, 2, 3, textArea);
+                    setNumberOfCardsLeftForOthers(index, 0, 2, 3, numberOfCard, playerName);
                     break;
                 case 2:
-                    setNumberOfCardsLeftForOthers(index, 0, 1, 3, textArea);
+                    setNumberOfCardsLeftForOthers(index, 0, 1, 3, numberOfCard, playerName);
                     break;
                 case 3:
-                    setNumberOfCardsLeftForOthers(index, 0, 1, 2, textArea);
+                    setNumberOfCardsLeftForOthers(index, 0, 1, 2, numberOfCard, playerName);
                     break;
                 default:
                     break;
@@ -183,19 +188,36 @@ public class ClientApplication extends JFrame implements Runnable {
         });
     }
 
-    private void setNumberOfCardsLeftForOthers(int index, int west, int north, int east, JTextArea textArea) {
-        if (index == west) {
-            westPanel.add(textArea);
-            return;
-        }
+    private void setNumberOfCardsLeftForOthers(int index, int west, int north, int east, String numberOfCard, String playerName) {
+        try {
+            BufferedImage myPicture = ImageIO.read(new File(BACK_CARD_IMAGE_PATH));
+            Image img = myPicture.getScaledInstance(70,105, Image.SCALE_SMOOTH);
+            ImageIcon imageIcon = new ImageIcon(img);
+            JLabel label = new JLabel();
+            label.setIcon(imageIcon);
+            label.setText("<html>Player: " + playerName +
+                    "<br>Cards left: " + numberOfCard);
+            label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+            label.setForeground(Color.white);
 
-        if (index == north) {
-            northPanel.add(textArea);
-            return;
-        }
+            if (index == north) {
+                northPanel.add(label);
+                return;
+            }
 
-        if (index == east) {
-            eastPanel.add(textArea);
+            label.setVerticalTextPosition(SwingConstants.BOTTOM);
+            label.setHorizontalTextPosition(SwingConstants.CENTER);
+
+            if (index == west) {
+                westPanel.add(label);
+                return;
+            }
+
+            if (index == east) {
+                eastPanel.add(label);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

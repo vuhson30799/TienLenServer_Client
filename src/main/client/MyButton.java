@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import static main.constant.Application.PORT;
+
+@SuppressWarnings("java:S110")
 public class MyButton extends JButton implements MouseListener {
 
     public MyButton(String text) {
@@ -26,7 +29,7 @@ public class MyButton extends JButton implements MouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         try {
-            Socket socket = new Socket("localhost", 5000);
+            Socket socket = new Socket("localhost", PORT);
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             if (!(e.getSource() instanceof MyButton)) {
                 throw new IllegalArgumentException("Something went wrong");

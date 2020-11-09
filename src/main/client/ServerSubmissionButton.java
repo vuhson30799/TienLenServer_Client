@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static main.constant.Application.PORT;
+
+@SuppressWarnings("java:S110")
 public class ServerSubmissionButton extends JButton implements MouseListener {
     private PlayerData inputPlayerData;
     private Socket client;
@@ -43,7 +46,7 @@ public class ServerSubmissionButton extends JButton implements MouseListener {
             String playerName = comp2.getText();
             PlayerData playerData = new PlayerData(playerName);
             try {
-                Socket socket = new Socket(serverAddress, 5000);
+                Socket socket = new Socket(serverAddress, PORT);
                 ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
                 outputStream.writeObject(playerData);
 

@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static main.constant.Application.PORT;
+
 public class GameManager implements Serializable {
     private static final long serialVersionUID = 100L;
     private static final String TURN_TITLE_FORMAT = "*** TURN %d - PLAYER %s's TURN **************************************************";
@@ -36,7 +38,7 @@ public class GameManager implements Serializable {
 
         pile = new PlayedPile();
         players = new ArrayList<>();
-        socket = new ServerSocket(5000);
+        socket = new ServerSocket(PORT);
         outputClients = new ArrayList<>();
     }
 
