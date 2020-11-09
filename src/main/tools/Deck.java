@@ -2,10 +2,12 @@ package main.tools;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
+@SuppressWarnings("java:S106")
 public class Deck {
-    private ArrayList<Card> cards;
+    private List<Card> cards;
 
     Deck() {
         initialDeck();
@@ -45,10 +47,6 @@ public class Deck {
         cards.add(spCard);
     }
 
-    public void insertCard(int index, Card spCard) {
-        cards.add(index, spCard);
-    }
-
     public Card removeAt(int i) {
         return cards.remove(i);
     }
@@ -72,40 +70,40 @@ public class Deck {
     public void rippleShuffle(int reps) {
         int size = cards.size();
         int midSize = cards.size()/2;
-        ArrayList<Card> LHalf = new ArrayList<Card>(midSize);
-        ArrayList<Card> RHalf = new ArrayList<Card>(size - midSize);
+        List<Card> leftHalfDeck = new ArrayList<>(midSize);
+        List<Card> rightHalfDeck = new ArrayList<>(size - midSize);
         Random randomizer = new Random();
 
         for (int num = 0; num < reps; num++) {
 
             for (int index = 0; index < size; index++) {
                 if (index < midSize) {
-                    LHalf.add(cards.remove(0));
+                    leftHalfDeck.add(cards.remove(0));
                 }
                 else {
-                    RHalf.add(cards.remove(0));
+                    rightHalfDeck.add(cards.remove(0));
                 }
             }
 
             while (cards.size() != size) {
                 if ((randomizer.nextInt() % 2) == 0) {
-                    if (!LHalf.isEmpty()) {
-                        cards.add(LHalf.remove(0));
+                    if (!leftHalfDeck.isEmpty()) {
+                        cards.add(leftHalfDeck.remove(0));
                     }
                     else {
-                        while (!RHalf.isEmpty()) {
-                            cards.add(RHalf.remove(0));
+                        while (!rightHalfDeck.isEmpty()) {
+                            cards.add(rightHalfDeck.remove(0));
                         }
                         break;
                     }
                 }
                 else {
-                    if (!RHalf.isEmpty()) {
-                        cards.add(RHalf.remove(0));
+                    if (!rightHalfDeck.isEmpty()) {
+                        cards.add(rightHalfDeck.remove(0));
                     }
                     else {
-                        while (!LHalf.isEmpty()) {
-                            cards.add(LHalf.remove(0));
+                        while (!leftHalfDeck.isEmpty()) {
+                            cards.add(leftHalfDeck.remove(0));
                         }
                         break;
                     }
@@ -117,12 +115,11 @@ public class Deck {
     public void hinduShuffle(int reps) {
         Random randomizer = new Random();
         int randNum;
-        int lBound, uBound;
+        int lBound;
+        int uBound;
         int range;
         for (int num = 0; num < reps; num++) {
             lBound = 0;
-            uBound = 0;
-            range = 0;
             do {
                 randNum = (randomizer.nextInt(4)) + 2;
                 uBound = cards.size() - randNum;
@@ -136,18 +133,6 @@ public class Deck {
 
             } while (range > 10);
         }
-    }
-
-    public void printSize() {
-        System.out.println("Size of main.Deck is: " + cards.size());
-    }
-
-    public void printDeck() {
-        printSize();
-        for (Card card : cards) {
-            System.out.println(card.toString());
-        }
-        System.out.println();
     }
 
 }

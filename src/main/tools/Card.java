@@ -7,21 +7,14 @@ import java.io.Serializable;
 
 import static main.constant.ApplicationError.*;
 
+@SuppressWarnings("java:S1206")
 public class Card implements Comparable<Card>, Serializable {
     private static final long serialVersionUID = 102L;
 
-    private int suite;
+    private final int suite;
     private int primaryRank;
     private int secondaryValue;
     private boolean sortByRank;
-
-    // Constructors
-    Card() {
-        suite = 0;
-        primaryRank = 0;
-        secondaryValue = 0;
-        sortByRank = false;
-    }
 
     public Card(int newSuite, int newPRank) {
         if (newSuite < 1 || newSuite > 4) {
@@ -68,19 +61,6 @@ public class Card implements Comparable<Card>, Serializable {
 
     public int getSVal() {
         return this.secondaryValue;
-    }
-
-    public int getCardIndex() {
-        return ((this.suite-1) * 13) + this.getRank();
-    }
-
-    public void setSuite(int newSuite) {
-        if (newSuite < 1 || newSuite > 4) {
-            throw new IllegalArgumentException(SUITE_ERROR);
-        }
-        else {
-            suite = newSuite;
-        }
     }
 
     public void setRank(int newPRank) {

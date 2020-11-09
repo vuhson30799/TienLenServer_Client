@@ -5,13 +5,13 @@ import main.tools.Card;
 import java.util.Collections;
 import java.util.List;
 
+import static main.constant.Application.IMAGE_PATH_FORMAT;
+import static main.constant.Application.LOWEST_CARD;
 import static main.constant.ApplicationError.FIRST_ROUND_INVALID;
 import static main.constant.Rank.*;
 import static main.constant.Suite.*;
 
 public class DefaultUtils implements Utils {
-    private static final String IMAGE_PATH_FORMAT = "./resources/images/%s/%s.png";
-    private static final Card LOWEST_CARD = new Card(1, 3);
 
     @Override
     public String generateImagePathFromCardValue(String suite, String rank) {

@@ -19,7 +19,7 @@ import static main.constant.Application.PORT;
 @SuppressWarnings("java:S110")
 public class ServerSubmissionButton extends JButton implements MouseListener {
     private PlayerData inputPlayerData;
-    private Socket client;
+    private transient Socket client;
 
     public ServerSubmissionButton(String text) {
         super(text);

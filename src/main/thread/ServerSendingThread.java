@@ -9,8 +9,8 @@ import java.net.Socket;
 import java.util.List;
 
 public class ServerSendingThread extends Thread{
-    private List<Socket> clients;
-    private GameManager gameManager;
+    private final List<Socket> clients;
+    private final GameManager gameManager;
     private boolean hasError;
     private String message;
 

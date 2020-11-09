@@ -16,15 +16,16 @@ import java.util.List;
 
 import static main.constant.Application.PORT;
 
+@SuppressWarnings("java:S106")
 public class GameManager implements Serializable {
     private static final long serialVersionUID = 100L;
     private static final String TURN_TITLE_FORMAT = "*** TURN %d - PLAYER %s's TURN **************************************************";
     private static final String PASS_ROUND_TITLE_FORMAT = "~~ main.Player %s has already passed for this current round ~~";
-    private transient Deck deck;
-    private transient PlayedPile pile;
+    private final transient Deck deck;
+    private final transient PlayedPile pile;
     private final transient ServerSocket socket;
-    private transient List<Socket> outputClients;
-    private List<Player> players;
+    private final transient List<Socket> outputClients;
+    private final List<Player> players;
     private int whoseTurn;
     private boolean isGameOver;
 
@@ -82,6 +83,7 @@ public class GameManager implements Serializable {
                 if (o instanceof PlayerData) {
                     PlayerData player = (PlayerData) o;
                     players.add(new Player(player.getPlayerName(), false));
+                    System.out.println(String.format("Player %s joined this game!", player.getPlayerName()));
                 } else {
                     throw new IllegalArgumentException("Player Data is invalid");
                 }
@@ -205,7 +207,6 @@ public class GameManager implements Serializable {
             }
             else {
                 temp.setSVal(currVal - shiftSize);
-                currVal = temp.getSVal();
             }
 
             deck.placeTop(temp);

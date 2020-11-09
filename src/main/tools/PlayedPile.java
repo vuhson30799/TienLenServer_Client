@@ -10,14 +10,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static main.constant.Application.LOWEST_CARD;
+import static main.constant.ApplicationError.INVALID_SELECTION;
 import static main.constant.ApplicationError.PLAYED_SET_INVALID;
 
+@SuppressWarnings("java:S106")
 public class PlayedPile {
-    public final Card lowestCard = new Card(1, 3);
-    private Utils utils = new DefaultUtils();
+    private final Utils utils = new DefaultUtils();
     // Data Fields
-    private ArrayList<Card> currSet;
-    private ArrayList<Card> cardSel;
+    private final List<Card> currSet;
+    private final List<Card> cardSel;
     private boolean playAny;
     private boolean isSingle;
     private boolean isDouble;
@@ -27,8 +29,7 @@ public class PlayedPile {
     private int straightSize;
     boolean validSSize = false;
     private int typeSel;
-
-    // Constructors
+    
     PlayedPile() {
         currSet = new ArrayList<>();
         playAny = true;
@@ -43,9 +44,8 @@ public class PlayedPile {
     }
 
     public void playerTurn(Player player, String playerName, boolean isAI, int turnNum, ClientToServerData data) {
-        int numOfCards = 0;
-        int userCommand = 0;
-        int userTypeSel = 0;
+        int userCommand;
+        int userTypeSelection;
         cardSel.clear();
 
         if (isAI) {
@@ -63,24 +63,20 @@ public class PlayedPile {
                 System.out.println("User wants to play this round!");
             }
 
-            if (userCommand == 1) {
-                ArrayList<Integer> cIndices = new ArrayList<>();
-                userCommand = data.getTypeSelection();
-                userTypeSel = userCommand;
-                System.out.println("[1] Single [2] Double [3] Triple [4] Straight [5] Bomb");
-                System.out.println("The number of the type of set user would like to play: " + userCommand);
-                if (checkTypeSel(userCommand)) {
+            switch (userCommand) {
+                case 1:
+                    ArrayList<Integer> cIndices = new ArrayList<>();
+                    userTypeSelection = data.getTypeSelection();
+                    System.out.println("[1] Single [2] Double [3] Triple [4] Straight [5] Bomb");
+                    System.out.println("The number of the type of set user would like to play: " + userTypeSelection);
 
-                    if (typeSel == 1) {
-                        numOfCards = 1;
-                    } else if (typeSel == 2) {
-                        numOfCards = 2;
-                    } else if (typeSel == 3) {
-                        numOfCards = 3;
-                    } else if (typeSel == 4) {
+                    checkTypeSelection(userTypeSelection);
+
+                    int numOfCards = data.getPlayedSet().size();
+
+                    if (typeSel == 4) {
                         validSSize = false;
-                        System.out.println("The size of the Straight user would like to play: " + data.getPlayedSet().size());
-                        numOfCards = data.getPlayedSet().size();
+                        System.out.println("The size of the Straight user would like to play: " + numOfCards);
 
                         if (playAny) {
                             if (numOfCards > 2 && numOfCards < player.handSize()) {
@@ -91,16 +87,14 @@ public class PlayedPile {
                                 throw new IllegalArgumentException("Invalid Size - Select a size between 3 and " + player.handSize());
                             }
                         } else if (numOfCards > straightSize) {
-                            System.out.print("**Invalid Size - Current Straight Size is " + straightSize + "**");
+                            System.out.println("**Invalid Size - Current Straight Size is " + straightSize + "**");
                             throw new IllegalArgumentException("Invalid Size - Current Straight Size is " + straightSize);
                         } else {
                             validSSize = true;
                         }
-                    } else if (typeSel == 5) {
-                        numOfCards = 6;
                     }
 
-                    if (userTypeSel == 4 && !validSSize) {
+                    if (userTypeSelection == 4 && !validSSize) {
                         throw new IllegalArgumentException(PLAYED_SET_INVALID);
                     }
                     player.displayHand();
@@ -114,22 +108,25 @@ public class PlayedPile {
                     if (cardSel.size() > numOfCards) {
                         throw new IllegalArgumentException(PLAYED_SET_INVALID);
                     }
-                }
 
-                if (!isValid(userTypeSel, cardSel, turnNum)) {
-                    throw new IllegalArgumentException(PLAYED_SET_INVALID);
-                }
+                    if (!isValid(userTypeSelection, cardSel, turnNum)) {
+                        throw new IllegalArgumentException(PLAYED_SET_INVALID);
+                    }
 
-                playSelection(playerName);
-                removeFromHand(player, cIndices);
-            } else {
-                if (playAny) {
-                    System.out.println("You cannot pass when you are able to play anything!");
-                    throw new IllegalArgumentException("You cannot pass when you are able to play anything!");
-                } else {
-                    System.out.println("~~ main.Player " + playerName + " is passing ~~");
-                    player.setPassing(true);
-                }
+                    playSelection(playerName);
+                    removeFromHand(player, cIndices);
+                    break;
+                case 2:
+                    if (playAny) {
+                        System.out.println("You cannot pass when you are able to play anything!");
+                        throw new IllegalArgumentException("You cannot pass when you are able to play anything!");
+                    } else {
+                        System.out.println("~~ main.Player " + playerName + " is passing ~~");
+                        player.setPassing(true);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -150,7 +147,7 @@ public class PlayedPile {
     // Methods
     public int findStarter(List<Player> players) {
         Player player = players.stream()
-                .filter(p -> p.checkAt(0).equals(lowestCard))
+                .filter(p -> p.checkAt(0).equals(LOWEST_CARD))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No player has 3 of Spades"));
 
@@ -178,12 +175,8 @@ public class PlayedPile {
     public void printCurrPlay() {
         if (currSet.isEmpty()) {
             printCurrRound();
-            System.out.println();
         } else {
-            for (Card card : currSet) {
-                System.out.print("|" + card + "|");
-            }
-            System.out.println("\n");
+            currSet.forEach(card -> System.out.println("|" + card + "|"));
         }
     }
 
@@ -192,62 +185,35 @@ public class PlayedPile {
         currAI.setPassing(true);
     }
 
-    private boolean checkTypeSel(int userCommand) {
-        boolean validSel = false;
-        switch (userCommand) {
+    private void checkTypeSelection(int userTypeSelection) {
+        switch (userTypeSelection) {
             case 1:
-                if (isSingle || playAny) {
-                    typeSel = userCommand;
-                    validSel = true;
-                } else {
-                    System.out.println("**Invalid Selection**");
-                    printCurrRound();
-                }
+                typeSel = isSingle || playAny ? userTypeSelection : throwException();
                 break;
             case 2:
-                if (isDouble || playAny) {
-                    typeSel = userCommand;
-                    validSel = true;
-                } else {
-                    System.out.println("**Invalid Selection**");
-                    printCurrRound();
-                }
+                typeSel = isDouble || playAny ? userTypeSelection : throwException();
                 break;
             case 3:
-                if (isTriple || playAny) {
-                    typeSel = userCommand;
-                    validSel = true;
-                } else {
-                    System.out.println("**Invalid Selection**");
-                    printCurrRound();
-                }
+                typeSel = isTriple || playAny ? userTypeSelection : throwException();
                 break;
             case 4:
-                if (isStraight || playAny) {
-                    typeSel = userCommand;
-                    validSel = true;
-                } else {
-                    System.out.println("**Invalid Selection**");
-                    printCurrRound();
-                }
+                typeSel = isStraight || playAny ? userTypeSelection : throwException();
                 break;
             case 5:
-                if (isSingle || isBomb || playAny) {
-                    typeSel = userCommand;
-                    validSel = true;
-                } else {
-                    System.out.println("**Invalid Selection**");
-                    printCurrRound();
-                }
+                typeSel = isSingle || isBomb || playAny ? userTypeSelection : throwException();
                 break;
             default:
-                System.out.println("**Invalid Selection**");
-                printCurrRound();
+                throwException();
         }
-        return validSel;
     }
 
-    private boolean isValid(int userTypeSel, ArrayList<Card> toPlay, int turnNum) {
+    private int throwException() {
+        System.out.println(INVALID_SELECTION);
+        printCurrRound();
+        throw new IllegalArgumentException(INVALID_SELECTION);
+    }
+
+    private boolean isValid(int userTypeSel, List<Card> toPlay, int turnNum) {
         boolean validPlay = false;
 
         if (userTypeSel == 1 && toPlay.size() == 1 && (playAny || isSingle)) {
@@ -295,7 +261,7 @@ public class PlayedPile {
         return validPlay;
     }
 
-    private boolean checkSingle(ArrayList<Card> toPlay, int turnNum) {
+    private boolean checkSingle(List<Card> toPlay, int turnNum) {
         System.out.println("CHECKING SINGLE . . .");
         if (turnNum == 1 && !utils.checkValidFirstRound(toPlay)) {
             return false;
@@ -330,7 +296,7 @@ public class PlayedPile {
         return false;
     }
 
-    private boolean checkDouble(ArrayList<Card> toPlay, int turnNum) {
+    private boolean checkDouble(List<Card> toPlay, int turnNum) {
         System.out.println("CHECKING DOUBLE . . .");
         if (turnNum == 1 && !utils.checkValidFirstRound(toPlay)) {
             return false;
@@ -339,19 +305,18 @@ public class PlayedPile {
         Collections.sort(toPlay);
         Card tpFirstC = toPlay.get(0);
         Card tpSecondC = toPlay.get(1);
-        if (tpFirstC.getRank() == 2 || tpSecondC.getRank() == 2) {
-            throw new IllegalArgumentException("Cannot use 2 in a Double");
-        }
 
         if (tpFirstC.getRank() == tpSecondC.getRank()) {
             if (playAny) {
                 return true;
             }
-            if (currSet.size() != 2) {
-                throw new IllegalArgumentException("The current played set of cards is not a Double");
-            }
-
             Card highestCurrC = currSet.get(1);
+            if (highestCurrC.getRank() == 2 && tpSecondC.getSVal() < highestCurrC.getSVal()) {
+                throw new IllegalArgumentException(PLAYED_SET_INVALID);
+            }
+            if (tpFirstC.getRank() == 2 || tpSecondC.getRank() == 2) {
+                return true;
+            }
             if (tpSecondC.getRank() > highestCurrC.getRank()) {
                 return true;
             }
@@ -363,7 +328,7 @@ public class PlayedPile {
         return false;
     }
 
-    private boolean checkTriple(ArrayList<Card> toPlay, int turnNum) {
+    private boolean checkTriple(List<Card> toPlay, int turnNum) {
         System.out.println("CHECKING TRIPLE . . .");
 
         if (turnNum == 1 && !utils.checkValidFirstRound(toPlay)) {
@@ -374,18 +339,18 @@ public class PlayedPile {
         Card tpFirstC = toPlay.get(0);
         Card tpSecondC = toPlay.get(1);
         Card tpThirdC = toPlay.get(2);
-        if (tpFirstC.getRank() == 2 || tpSecondC.getRank() == 2 || tpThirdC.getRank() == 2) {
-            throw new IllegalArgumentException("You cannot use 2 in a Triple");
-        }
 
         if (tpFirstC.getRank() == tpSecondC.getRank() && tpSecondC.getRank() == tpThirdC.getRank()) {
             if (playAny) {
                 return true;
             }
-            if (currSet.size() != 3) {
-                throw new IllegalArgumentException("The current played set of cards is not a Triple");
-            }
             Card highestCurrC = currSet.get(2);
+            if (highestCurrC.getRank() == 2) {
+                throw new IllegalArgumentException(PLAYED_SET_INVALID);
+            }
+            if (tpFirstC.getRank() == 2 || tpSecondC.getRank() == 2 || tpThirdC.getRank() == 2) {
+                return true;
+            }
             if (tpThirdC.getRank() > highestCurrC.getRank()) {
                 return true;
             }
@@ -397,7 +362,7 @@ public class PlayedPile {
         return false;
     }
 
-    private boolean checkStraight(ArrayList<Card> toPlay, int turnNum) {
+    private boolean checkStraight(List<Card> toPlay, int turnNum) {
         System.out.println("CHECKING STRAIGHT . . .");
         boolean isConsec = false;
 
@@ -438,14 +403,13 @@ public class PlayedPile {
         return false;
     }
 
-    private boolean checkBomb(ArrayList<Card> toPlay, int turnNum) {
+    private boolean checkBomb(List<Card> toPlay, int turnNum) {
         System.out.println("CHECKING BOMB . . .");
 
         if (turnNum == 1) {
             throw new IllegalArgumentException("You cannot play a Bomb on Turn 1");
         }
 
-        boolean valid = false;
         boolean validBomb = false;
 
         Collections.sort(toPlay);
@@ -509,9 +473,7 @@ public class PlayedPile {
 
     private void playSelection(String playerName) {
         currSet.clear();
-        for (Card card : cardSel) {
-            currSet.add(card);
-        }
+        currSet.addAll(cardSel);
         cardSel.clear();
         System.out.println("main.Player " + playerName + " played:");
         printCurrPlay();
@@ -523,12 +485,12 @@ public class PlayedPile {
         }
     }
 
-    private void setTypeFlags(boolean setS, boolean setD, boolean setT, boolean setSt, boolean setB) {
-        isSingle = setS;
-        isDouble = setD;
-        isTriple = setT;
-        isStraight = setSt;
-        isBomb = setB;
+    private void setTypeFlags(boolean isSingle, boolean isDouble, boolean isTriple, boolean isStraight, boolean isBomb) {
+        this.isSingle = isSingle;
+        this.isDouble = isDouble;
+        this.isTriple = isTriple;
+        this.isStraight = isStraight;
+        this.isBomb = isBomb;
     }
 
     private void printCurrRound() {
@@ -547,7 +509,7 @@ public class PlayedPile {
         }
     }
 
-    public ArrayList<Card> getCurrSet() {
+    public List<Card> getCurrSet() {
         return currSet;
     }
 }

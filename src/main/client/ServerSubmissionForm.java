@@ -5,12 +5,12 @@ import main.dto.PlayerData;
 import javax.swing.*;
 import java.awt.*;
 import java.net.Socket;
-import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings({"java:S106", "java:S110"})
 public class ServerSubmissionForm extends JFrame implements Runnable {
     private PlayerData playerData;
-    private ServerSubmissionButton button;
-    private Socket client;
+    private final ServerSubmissionButton button;
+    private transient Socket client;
     public ServerSubmissionForm() {
         this.setTitle("Card Game");
         button = new ServerSubmissionButton("Play");
@@ -25,13 +25,9 @@ public class ServerSubmissionForm extends JFrame implements Runnable {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
     @Override
-    public void run() {
+    public void run(){
         while (this.button.getClient() == null) {
-            try {
-                TimeUnit.SECONDS.sleep(3);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            System.out.println();
         }
         this.setPlayerData(button.getInputPlayerData());
         this.setClient(button.getClient());

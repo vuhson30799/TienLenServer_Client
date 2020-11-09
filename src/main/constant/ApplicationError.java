@@ -7,4 +7,5 @@ public class ApplicationError {
     public static final String SECONDARY_VALUE_ERROR = "Secondary Value Error - Must be greater than 0";
     public static final String PLAYED_SET_INVALID = "Played set is invalid";
     public static final String FIRST_ROUND_INVALID = "The first turn must include the 3 of Spades";
+    public static final String INVALID_SELECTION = "**Invalid Selection**";
 }

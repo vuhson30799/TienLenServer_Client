@@ -3,23 +3,25 @@ package main.tools;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
+@SuppressWarnings({"java:S106","java:S1206"})
 public class Player implements Serializable {
     private static final long serialVersionUID = 101L;
 
-    private ArrayList<Card> hand = new ArrayList<>();
+    private final List<Card> hand;
     private boolean passTurn;
-    private boolean isAI;
-    private String name;
+    //This field means this player is not exist, current game doesn't have full clients.
+    private final boolean isAI;
+    private final String name;
 
-    // Constructor
     public Player(String name, boolean isAI) {
         this.name = name;
         passTurn = false;
         this.isAI = isAI;
+        this.hand = new ArrayList<>();
     }
 
-    // Methods
     public boolean isHandEmpty() {
         return hand.isEmpty();
     }
@@ -28,16 +30,11 @@ public class Player implements Serializable {
         return passTurn;
     }
 
-    public void setAI(boolean isAI) {
-        this.isAI = isAI;
-    }
-
     public boolean checkAI() {
         return isAI;
     }
 
     public String getName() { return this.name;}
-    public void setName(String name) { this.name = name;}
 
     public void setPassing(boolean isPassing) {
         passTurn = isPassing;
@@ -66,20 +63,12 @@ public class Player implements Serializable {
         return cardAt;
     }
 
-    public Card getCardAt(int i) {
-        return hand.get(i);
-    }
-
     public int getIndexOf(Card card) {
         return this.hand.indexOf(card);
     }
 
     public void removeCardAt(int i) {
         hand.remove(i);
-    }
-
-    public void emptyHand() {
-        hand.clear();
     }
 
     public int handSize() {
@@ -102,7 +91,7 @@ public class Player implements Serializable {
         return false;
     }
 
-    public ArrayList<Card> getHand() {
+    public List<Card> getHand() {
         return hand;
     }
 }

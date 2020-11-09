@@ -14,8 +14,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class MyCard extends JLabel implements MouseListener {
-    private int originalX;
-    private int originalY;
     private Card card;
 
     public MyCard(Card card) throws IOException {
@@ -27,8 +25,6 @@ public class MyCard extends JLabel implements MouseListener {
         Image img = myPicture.getScaledInstance(70,105, Image.SCALE_SMOOTH);
         ImageIcon imageIcon = new ImageIcon(img);
         this.setIcon(imageIcon);
-        this.setOriginalX(this.getX());
-        this.setOriginalY(this.getY());
         addMouseListener(this);
     }
 
@@ -78,22 +74,6 @@ public class MyCard extends JLabel implements MouseListener {
     @Override
     public void mouseExited(MouseEvent e) {
         //TO-DO: do nothing for now
-    }
-
-    public int getOriginalX() {
-        return originalX;
-    }
-
-    public void setOriginalX(int originalX) {
-        this.originalX = originalX;
-    }
-
-    public int getOriginalY() {
-        return originalY;
-    }
-
-    public void setOriginalY(int originalY) {
-        this.originalY = originalY;
     }
 
     public Card getCard() {

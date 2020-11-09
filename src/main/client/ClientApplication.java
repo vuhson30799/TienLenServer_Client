@@ -20,11 +20,11 @@ import static main.constant.Application.*;
 @SuppressWarnings("java:S110")
 public class ClientApplication extends JFrame implements Runnable {
     private PlayerData playerData;
-    private MyPanel southPanel;
-    private MyPanel northPanel;
-    private MyPanel westPanel;
-    private MyPanel eastPanel;
-    private MyPanel centerPanel;
+    private final MyPanel southPanel;
+    private final MyPanel northPanel;
+    private final MyPanel westPanel;
+    private final MyPanel eastPanel;
+    private final MyPanel centerPanel;
 
     public ClientApplication() {
         this.setTitle("Card Game");
@@ -38,10 +38,10 @@ public class ClientApplication extends JFrame implements Runnable {
         northPanel = new MyPanel();
         northPanel.setBackground(BACKGROUND_COLOR);
 
-        westPanel = new MyPanel();
+        westPanel = new MyPanel(new BorderLayout());
         westPanel.setBackground(BACKGROUND_COLOR);
 
-        eastPanel = new MyPanel();
+        eastPanel = new MyPanel(new BorderLayout());
         eastPanel.setBackground(BACKGROUND_COLOR);
 
         centerPanel = new MyPanel();
@@ -144,9 +144,14 @@ public class ClientApplication extends JFrame implements Runnable {
                 e.printStackTrace();
             }
         });
+        int whoseTurn = inputData.getWhoseTurn();
+        JLabel label = new JLabel("Current Player: " + inputData.getPlayers().get(whoseTurn).getName());
+        label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        label.setForeground(Color.white);
+        centerPanel.add(label);
 
         initDataForOtherPanels(playerData.getPlayerId(), inputData);
-        createSetButton(inputData.getWhoseTurn());
+        createSetButton(whoseTurn);
 
         if (resize) {
             this.setSize( 1201, 700);
@@ -174,10 +179,10 @@ public class ClientApplication extends JFrame implements Runnable {
                     setNumberOfCardsLeftForOthers(index, 1, 2, 3, numberOfCard, playerName);
                     break;
                 case 1:
-                    setNumberOfCardsLeftForOthers(index, 0, 2, 3, numberOfCard, playerName);
+                    setNumberOfCardsLeftForOthers(index, 2, 3, 0, numberOfCard, playerName);
                     break;
                 case 2:
-                    setNumberOfCardsLeftForOthers(index, 0, 1, 3, numberOfCard, playerName);
+                    setNumberOfCardsLeftForOthers(index, 3, 0, 1, numberOfCard, playerName);
                     break;
                 case 3:
                     setNumberOfCardsLeftForOthers(index, 0, 1, 2, numberOfCard, playerName);
@@ -209,12 +214,12 @@ public class ClientApplication extends JFrame implements Runnable {
             label.setHorizontalTextPosition(SwingConstants.CENTER);
 
             if (index == west) {
-                westPanel.add(label);
+                westPanel.add(BorderLayout.CENTER, label);
                 return;
             }
 
             if (index == east) {
-                eastPanel.add(label);
+                eastPanel.add(BorderLayout.CENTER, label);
             }
         } catch (IOException e) {
             e.printStackTrace();
