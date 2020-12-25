@@ -15,10 +15,16 @@ public class ServerSubmissionForm extends JFrame implements Runnable {
         this.setTitle("Card Game");
         button = new ServerSubmissionButton("Play");
         this.setLayout(new GridLayout(3, 2));
+
         this.setMinimumSize(new Dimension(500, 500));
-        this.add(new JLabel("Server: "));
+        JLabel label = new JLabel("Server: ");
+        label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        this.add(label);
         this.add(new JTextField(3));
-        this.add(new JLabel("Name: "));
+
+        JLabel nameLabel = new JLabel("Name: ");
+        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        this.add(nameLabel);
         this.add(new JTextField(3));
         this.add(button);
         this.setVisible(true);

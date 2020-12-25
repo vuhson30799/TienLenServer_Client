@@ -40,9 +40,11 @@ public class ClientApplication extends JFrame implements Runnable {
 
         westPanel = new MyPanel(new BorderLayout());
         westPanel.setBackground(BACKGROUND_COLOR);
+        westPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
         eastPanel = new MyPanel(new BorderLayout());
         eastPanel.setBackground(BACKGROUND_COLOR);
+        eastPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
 
         centerPanel = new MyPanel();
         centerPanel.setBackground(BACKGROUND_COLOR);
@@ -145,10 +147,6 @@ public class ClientApplication extends JFrame implements Runnable {
             }
         });
         int whoseTurn = inputData.getWhoseTurn();
-        JLabel label = new JLabel("Current Player: " + inputData.getPlayers().get(whoseTurn).getName());
-        label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-        label.setForeground(Color.white);
-        centerPanel.add(label);
 
         initDataForOtherPanels(playerData.getPlayerId(), inputData);
         createSetButton(whoseTurn);
@@ -173,19 +171,20 @@ public class ClientApplication extends JFrame implements Runnable {
         IntStream.range(0, 4).filter(index -> index != playerId).forEach(index -> {
             String numberOfCard = String.valueOf(inputData.getPlayers().get(index).getHand().size());
             String playerName = inputData.getPlayers().get(index).getName();
+            int whoseTurn = inputData.getWhoseTurn();
 
             switch (playerId) {
                 case 0:
-                    setNumberOfCardsLeftForOthers(index, 1, 2, 3, numberOfCard, playerName);
+                    setNumberOfCardsLeftForOthers(index, 1, 2, 3, numberOfCard, playerName, whoseTurn);
                     break;
                 case 1:
-                    setNumberOfCardsLeftForOthers(index, 2, 3, 0, numberOfCard, playerName);
+                    setNumberOfCardsLeftForOthers(index, 2, 3, 0, numberOfCard, playerName, whoseTurn);
                     break;
                 case 2:
-                    setNumberOfCardsLeftForOthers(index, 3, 0, 1, numberOfCard, playerName);
+                    setNumberOfCardsLeftForOthers(index, 3, 0, 1, numberOfCard, playerName, whoseTurn);
                     break;
                 case 3:
-                    setNumberOfCardsLeftForOthers(index, 0, 1, 2, numberOfCard, playerName);
+                    setNumberOfCardsLeftForOthers(index, 0, 1, 2, numberOfCard, playerName, whoseTurn);
                     break;
                 default:
                     break;
@@ -193,7 +192,7 @@ public class ClientApplication extends JFrame implements Runnable {
         });
     }
 
-    private void setNumberOfCardsLeftForOthers(int index, int west, int north, int east, String numberOfCard, String playerName) {
+    private void setNumberOfCardsLeftForOthers(int index, int west, int north, int east, String numberOfCard, String playerName, int whoseTurn) {
         try {
             BufferedImage myPicture = ImageIO.read(new File(BACK_CARD_IMAGE_PATH));
             Image img = myPicture.getScaledInstance(70,105, Image.SCALE_SMOOTH);
@@ -203,7 +202,12 @@ public class ClientApplication extends JFrame implements Runnable {
             label.setText("<html>Player: " + playerName +
                     "<br>Cards left: " + numberOfCard);
             label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-            label.setForeground(Color.white);
+
+            if (index != whoseTurn) {
+                label.setForeground(Color.WHITE);
+            } else {
+                label.setForeground(Color.RED);
+            }
 
             if (index == north) {
                 northPanel.add(label);
