@@ -27,7 +27,6 @@ public class ClientApplication extends JFrame implements Runnable {
     private final MyPanel centerPanel;
 
     public ClientApplication() {
-        this.setTitle("Card Game");
         this.setSize( 1200, 700);
         this.setMinimumSize(new Dimension(1200, 700));
         southPanel = new MyPanel();
@@ -62,6 +61,7 @@ public class ClientApplication extends JFrame implements Runnable {
         try {
             Socket socket = initFrameChoosingServer();
             waitingForStartingSign(socket);
+            this.setTitle(this.playerData.getPlayerName());
             this.setVisible(true);
             boolean resize = false;
             boolean isGameOver = false;

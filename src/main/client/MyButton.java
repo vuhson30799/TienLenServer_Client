@@ -29,25 +29,27 @@ public class MyButton extends JButton implements MouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         try {
-            Socket socket = new Socket("localhost", PORT);
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-            if (!(e.getSource() instanceof MyButton)) {
-                throw new IllegalArgumentException("Something went wrong");
-            }
+            if (this.isEnabled()) {
+                Socket socket = new Socket("localhost", PORT);
+                ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+                if (!(e.getSource() instanceof MyButton)) {
+                    throw new IllegalArgumentException("Something went wrong");
+                }
 
-            MyButton component = (MyButton) e.getSource();
-            if (!(component.getParent() instanceof MyPanel)) {
-                throw new IllegalArgumentException("Something went wrong");
+                MyButton component = (MyButton) e.getSource();
+                if (!(component.getParent() instanceof MyPanel)) {
+                    throw new IllegalArgumentException("Something went wrong");
+                }
+                MyPanel parent = (MyPanel) component.getParent();
+                if (component.getText().equals("Play")) {
+                    outputStream.writeObject(setOutputDataForServer(parent, false));
+                } else {
+                    outputStream.writeObject(setOutputDataForServer(parent, true));
+                }
+                outputStream.flush();
+                outputStream.close();
+                socket.close();
             }
-            MyPanel parent = (MyPanel) component.getParent();
-            if (component.getText().equals("Play")) {
-                outputStream.writeObject(setOutputDataForServer(parent, false));
-            } else {
-                outputStream.writeObject(setOutputDataForServer(parent, true));
-            }
-            outputStream.flush();
-            outputStream.close();
-            socket.close();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }

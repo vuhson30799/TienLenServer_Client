@@ -33,7 +33,6 @@ public class ServerSubmissionButton extends JButton implements MouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getSource() instanceof ServerSubmissionButton) {
-            displayPopUp(this.getParent(), "Connecting to host...");
             ((ServerSubmissionButton) e.getSource()).setEnabled(false);
             List<Component> components = Arrays.stream(((ServerSubmissionButton) e.getSource()).getParent()
                     .getComponents())
@@ -43,7 +42,16 @@ public class ServerSubmissionButton extends JButton implements MouseListener {
             JTextField comp2 = (JTextField) components.get(1);
 
             String serverAddress = comp1.getText();
+            if (serverAddress.isEmpty()) {
+                displayPopUp(this.getParent(), "Please enter server address!!");
+                return;
+            }
             String playerName = comp2.getText();
+            if (playerName.isEmpty()) {
+                displayPopUp(this.getParent(), "Please enter player name!!");
+                return;
+            }
+            displayPopUp(this.getParent(), "Connecting to host...");
             PlayerData playerData = new PlayerData(playerName);
             try {
                 Socket socket = new Socket(serverAddress, PORT);
